@@ -1,0 +1,45 @@
+name: Package
+
+on:
+  push:
+
+env:
+  NODE_VERSION: '24'
+
+jobs:
+  plugin-zip:
+    name: 'Plugin: ZIP Package'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: '[setup] Checkout Project'
+        uses: actions/checkout@v6
+
+      - name: '[setup] Node.js ${{ matrix.node-version }}'
+        uses: actions/setup-node@v6
+        with:
+            node-version: ${{ env.NODE_VERSION }}
+
+      - name: '[app] Install'
+        run: npm install
+
+      - name: '[app] Build'
+        run: npm run build
+
+      - name: '[dist] Create artifact'
+        uses: actions/upload-artifact@v6
+        with:
+          name: plugin
+          path: ./dist
+
+      - name: '[release] Create ZIP'
+        if: github.ref_type == 'tag'
+        run: |
+          cd dist
+          zip -r plugin.zip ./*
+
+      - name: '[release] Create GitHub Release'
+        uses: softprops/action-gh-release@v3
+        if: github.ref_type == 'tag'
+        with:
+          files: dist/plugin.zip
