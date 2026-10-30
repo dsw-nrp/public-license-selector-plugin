@@ -18,3 +18,9 @@ Initial version with public license selector.
 
 This project is licensed under the MIT License - see the
 [LICENSE](LICENSE) file for more details.
+
+## Acknowledgements
+
+|     |     |
+| --- | --- |
+| ![EU and MŠMT](https://dmp.eosc.cz/static/eu-msmt.svg) | This work is supported by the project National Repository Platform for Research Data no. [CZ.02.01.01/00/23_014/0008787](https://www.eosc.cz/en/projects/national-repository-platform-for-research-data-os-i-nrp/national-repository-platform). |
