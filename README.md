@@ -10,6 +10,11 @@ See the [Plugins](https://guide.ds-wizard.org/en/latest/more/self-hosted-dsw/con
 
 ## Changelog
 
+### 0.2.0
+
+- Updated to DSW Plugin SDK 0.11.0 (requires Wizard 4.35 or newer)
+- Updated dependencies
+
 ### 0.1.0
 
 Initial version with public license selector.

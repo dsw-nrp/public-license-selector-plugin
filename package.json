@@ -1,6 +1,6 @@
 {
   "name": "public-license-selector-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DSW Plugin for selecting a public license in integration questions",
   "license": "MIT",
   "author": "Marek Suchánek <marek.suchanek@cvut.cz>",
