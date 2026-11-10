@@ -8,7 +8,22 @@ Plugin UUID: `6f4ead79-b460-4c07-a98c-40d18dc1f484`
 
 See the [Plugins](https://guide.ds-wizard.org/en/latest/more/self-hosted-dsw/configuration/plugins.html) page in the DSW Guide for instructions on how to install the plugin.
 
+## Development
+
+- `npm run build` = type-checks, lints and creates a production build of the plugin in `dist`
+- `npm run dev` = watches for changes and serves the plugin on port 4173, to point the wizard at
+
+The plugin needs Node.js 22.12 or newer.
+
+`lodash` is intentionally kept on 3.x: `@ufal/license-selector` calls lodash 3 functions (`contains`, `any`, `all`, `where`) that were removed in lodash 4.
+
 ## Changelog
+
+### 0.3.0
+
+- Updated to DSW Plugin SDK 0.12.0 (requires Wizard 5.0 or newer)
+- The plugin is drawn with the wizard's design system (SDK UI components) instead of Bootstrap classes, so it follows the wizard's theme including dark mode
+- Updated dependencies (Vite 8, ESLint 10, TypeScript 6, React 19.3)
 
 ### 0.2.0
 

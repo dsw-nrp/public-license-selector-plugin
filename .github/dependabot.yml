@@ -15,6 +15,10 @@ updates:
               update-types:
                   - 'minor'
                   - 'patch'
+      ignore:
+          # @ufal/license-selector relies on lodash 3 APIs removed in lodash 4
+          - dependency-name: 'lodash'
+            update-types: ['version-update:semver-major']
 
     - package-ecosystem: 'github-actions'
       directory: '/'

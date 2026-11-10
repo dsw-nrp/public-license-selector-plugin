@@ -1,14 +1,12 @@
 import { PluginBuilder } from '@ds-wizard/plugin-sdk/core'
 import { Plugin } from '@ds-wizard/plugin-sdk/types'
 
+import PluginIntegrationEditor from '@/components/PluginIntegrationEditor'
 import PluginIntegrationSelection from '@/components/PluginIntegrationSelection'
 import { PluginIntegrationSettingsDataCodec } from '@/data/plugin-integration-settings-data'
-
-import PluginIntegrationEditor from './components/PluginIntegrationEditor'
-import { SettingsDataCodec } from './data/settings-data'
-import { UserSettingsDataCodec } from './data/user-settings-data'
-import { pluginMetadata } from './metadata'
-
+import { SettingsDataCodec } from '@/data/settings-data'
+import { UserSettingsDataCodec } from '@/data/user-settings-data'
+import { pluginMetadata } from '@/metadata'
 
 export default function (_settingsInput: unknown, _userSettingsInput: unknown): Plugin {
     // This plugin has no settings or user settings to initialize.

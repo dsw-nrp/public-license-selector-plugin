@@ -1,8 +1,10 @@
-import {
-    createIntegrationReply,
-    IntegrationReply,
-    KnowledgeModelIntegrationQuestionnaireComponentProps,
-} from '@ds-wizard/plugin-sdk'
+import { createIntegrationReply, IntegrationReply } from '@ds-wizard/plugin-sdk/data'
+import { KnowledgeModelIntegrationQuestionnaireComponentProps } from '@ds-wizard/plugin-sdk/elements'
+import { Card } from '@ds-wizard/plugin-sdk/ui/Card'
+import { Inline, Stack } from '@ds-wizard/plugin-sdk/ui/Layout'
+import { Link } from '@ds-wizard/plugin-sdk/ui/Link'
+import { Tag, TagList } from '@ds-wizard/plugin-sdk/ui/Tag'
+import { Body, Subtitle } from '@ds-wizard/plugin-sdk/ui/Text'
 
 import LicenseSelectorModal from '@/components/LicenseSelectorModal'
 import { PluginIntegrationSettingsData } from '@/data/plugin-integration-settings-data'
@@ -29,65 +31,42 @@ export default function PluginIntegrationSelection({
 
     const selectedLicense = getSelectedLicense(integrationReply)
 
+    if (selectedLicense) {
+        return <LicenseReply license={selectedLicense} />
+    }
+
     return (
-        <div className="questionnaireContent__value questionnaireContent__integrationQuestion">
-            {selectedLicense ? (
-                <LicenseReply license={selectedLicense} />
-            ) : (
-                <>
-                    <LicenseSelectorModal onLicenseSelected={handleLicenseSelected}>
-                        Select a public license
-                    </LicenseSelectorModal>
-                </>
-            )}
-        </div>
+        <Inline>
+            <LicenseSelectorModal onLicenseSelected={handleLicenseSelected}>
+                Select a public license
+            </LicenseSelectorModal>
+        </Inline>
     )
 }
 
-// Inline styles so the reply stays legible regardless of the surrounding theme
-// (the default Bootstrap badge classes render white-on-white here).
-const selectedLicenseStyle = {
-    padding: '12px 16px',
-    marginBottom: '16px',
-    border: '1px solid #dee2e6',
-    borderRadius: '6px',
-} as const
-
-const categoryBadgeStyle = {
-    display: 'inline-block',
-    marginRight: '4px',
-    padding: '2px 8px',
-    borderRadius: '4px',
-    backgroundColor: '#e9ecef',
-    color: '#333',
-    fontSize: '85%',
-} as const
-
 function LicenseReply({ license }: { license: LicenseDefinition }) {
     return (
-        <div className="selected-license" style={selectedLicenseStyle}>
-            <p>
-                <strong>
+        <Card>
+            <Stack>
+                <Subtitle>
                     {license.url ? (
-                        <a href={license.url} target="_blank" rel="noopener noreferrer">
+                        <Link href={license.url} external>
                             {license.name}
-                        </a>
+                        </Link>
                     ) : (
                         license.name
                     )}
-                </strong>
-            </p>
-            {license.description && <p>{license.description}</p>}
-            {license.categories && license.categories.length > 0 && (
-                <p style={{ marginBottom: 0 }}>
-                    {license.categories.map((category) => (
-                        <span key={category} style={categoryBadgeStyle}>
-                            {category}
-                        </span>
-                    ))}
-                </p>
-            )}
-        </div>
+                </Subtitle>
+                {license.description && <Body>{license.description}</Body>}
+                {license.categories && license.categories.length > 0 && (
+                    <TagList>
+                        {license.categories.map((category) => (
+                            <Tag key={category} label={category} />
+                        ))}
+                    </TagList>
+                )}
+            </Stack>
+        </Card>
     )
 }
 

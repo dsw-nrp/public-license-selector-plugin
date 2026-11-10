@@ -1,14 +1,13 @@
-import { readFileSync } from 'fs'
-import path from 'path'
+import { fileURLToPath } from 'node:url'
 
 import { emitManifestPlugin } from '@ds-wizard/plugin-sdk/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
-import { pluginMetadata } from './src/metadata'
+import { pluginMetadata } from './src/metadata.ts'
 
 // The @ufal/license-selector ESM bundle does `import * as $ from 'jquery'` (and
-// the same for lodash) and then calls `$(...)`. Vite/esbuild/Rollup resolve a
+// the same for lodash) and then calls `$(...)`. Vite/Rolldown resolve a
 // namespace import to a non-callable namespace object, which crashes at load.
 // Rewrite those two imports to default imports, which the bundler makes callable.
 const rewriteInterop = (code: string) =>
@@ -19,7 +18,9 @@ const rewriteInterop = (code: string) =>
 const isLicenseSelectorEsm = (id: string) =>
     id.includes('@ufal/license-selector') && id.includes('license-selector.esm.js')
 
-// Applies the rewrite in the production Rollup build.
+// Applies the rewrite both in the build and in the dev dependency pre-bundler
+// (Rolldown), which does not run the Vite plugin pipeline on optimized
+// dependencies and so gets this plugin through `optimizeDeps.rolldownOptions`.
 const fixLicenseSelectorJqueryInterop = () => ({
     name: 'fix-license-selector-jquery-interop',
     enforce: 'pre' as const,
@@ -28,30 +29,13 @@ const fixLicenseSelectorJqueryInterop = () => ({
             return null
         }
         // The rewrite only swaps two import statements on the bundle's single
-        // line, so an empty sourcemap is fine (and avoids a Rollup warning).
+        // line, so an empty sourcemap is fine (and avoids a bundler warning).
         return { code: rewriteInterop(code), map: { mappings: '' } }
     },
 })
 
-// Applies the same rewrite in the dev dependency pre-bundler (esbuild), which
-// does not run Vite plugin `transform` hooks on optimized dependencies.
-const fixLicenseSelectorJqueryInteropEsbuild = {
-    name: 'fix-license-selector-jquery-interop-esbuild',
-    setup(build: {
-        onLoad: (
-            options: { filter: RegExp },
-            callback: (args: { path: string }) => { contents: string; loader: 'js' },
-        ) => void
-    }) {
-        build.onLoad({ filter: /license-selector\.esm\.js$/ }, (args) => ({
-            contents: rewriteInterop(readFileSync(args.path, 'utf8')),
-            loader: 'js',
-        }))
-    },
-}
-
 // The @ufal/license-selector stylesheet ships legacy IE6/7 `*prop`/`_prop`
-// hacks. They are invalid CSS, so esbuild's CSS minifier warns on each one.
+// hacks. They are invalid CSS, so the CSS minifier warns on each one.
 // Strip those declarations from the raw stylesheet before Vite's CSS pipeline
 // runs — they do nothing in modern browsers.
 const stripIeCssHacks = () => ({
@@ -73,14 +57,14 @@ export default defineConfig(({ mode }) => {
         plugins: [stripIeCssHacks(), fixLicenseSelectorJqueryInterop(), react()],
 
         optimizeDeps: {
-            esbuildOptions: {
-                plugins: [fixLicenseSelectorJqueryInteropEsbuild],
+            rolldownOptions: {
+                plugins: [fixLicenseSelectorJqueryInterop()],
             },
         },
 
         resolve: {
             alias: {
-                '@': path.resolve(__dirname, 'src'),
+                '@': fileURLToPath(new URL('./src', import.meta.url)),
             },
         },
 
@@ -107,7 +91,7 @@ export default defineConfig(({ mode }) => {
             // Dev: readable + sourcemaps
             // Prod: aggressive minify + hidden sourcemaps
             sourcemap: isProd ? 'hidden' : true,
-            minify: isProd ? 'terser' : 'esbuild',
+            minify: isProd ? 'terser' : 'oxc',
 
             // Only applies when minify === 'terser'
             terserOptions: isProd
@@ -131,9 +115,9 @@ export default defineConfig(({ mode }) => {
             assetsInlineLimit: () => true,
 
             // Single-file bundle (handy for plugin loaders)
-            rollupOptions: {
+            rolldownOptions: {
                 output: {
-                    inlineDynamicImports: true,
+                    codeSplitting: false,
                 },
                 plugins: [emitManifestPlugin(pluginMetadata)],
             },
